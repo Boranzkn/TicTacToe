@@ -27,6 +27,7 @@ public class GameManager : NetworkBehaviour
     public event EventHandler OnRematch;
     public event EventHandler OnGameTied;
     public event EventHandler OnScoreChanged;
+    public event EventHandler OnPlacedObject;
 
     // Enums
     public enum PlayerType
@@ -191,6 +192,8 @@ public class GameManager : NetworkBehaviour
         // Assign that location to the playerType (Cross or Circle).
         playerTypeArray[x, y] = playerType;
 
+        TriggerOnPlacedObjectRpc();
+
         OnClickedOnGridPosition?.Invoke(this, new OnClickedOnGridPositionEventArgs { x = x, y = y, playerType = playerType });
 
         switch (currentPlayablePlayerType.Value)
@@ -205,6 +208,12 @@ public class GameManager : NetworkBehaviour
         }
 
         TestWinner();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void TriggerOnPlacedObjectRpc()
+    {
+        OnPlacedObject?.Invoke(this, EventArgs.Empty);
     }
 
     private void TestWinner()
