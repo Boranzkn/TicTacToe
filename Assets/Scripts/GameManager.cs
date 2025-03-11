@@ -23,6 +23,7 @@ public class GameManager : NetworkBehaviour
     }
     public event EventHandler OnCurrentPlayablePlayerTypeChanged;
     public event EventHandler OnRematch;
+    public event EventHandler OnGameTied;
 
     public enum PlayerType
     {
@@ -198,8 +199,31 @@ public class GameManager : NetworkBehaviour
                 // Win!
                 currentPlayablePlayerType.Value = PlayerType.None;
                 TriggerOnGameWinRpc(i, playerTypeArray[line.centerGridPosition.x, line.centerGridPosition.y]);
+                return;
+            }
+        }
+
+        bool hasTie = true;
+        for (int x = 0; x < playerTypeArray.GetLength(0); x++)
+        {
+            for (int y = 0; y < playerTypeArray.GetLength(1); y++)
+            {
+                if (playerTypeArray[x, y] == PlayerType.None)
+                {
+                    hasTie = false;
+                    break;
+                }
+            }
+
+            if (!hasTie)
+            {
                 break;
             }
+        }
+
+        if (hasTie)
+        {
+            TriggerOnGameTiedRpc();
         }
     }
 
@@ -212,6 +236,12 @@ public class GameManager : NetworkBehaviour
             line = line,
             winPlayerType = winPlayerType
         });
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void TriggerOnGameTiedRpc()
+    {
+        OnGameTied?.Invoke(this, EventArgs.Empty);
     }
 
     private bool TestWinnerLine(PlayerType aPlayerType, PlayerType bPlayerType, PlayerType cPlayerType)

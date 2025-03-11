@@ -1033,6 +1033,7 @@ MonoBehaviour:
   resultText: {fileID: 1869921031}
   winColor: {r: 0.2831438, g: 0.7924528, b: 0.18316127, a: 1}
   loseColor: {r: 0.8396226, g: 0.1431285, b: 0.07524917, a: 1}
+  tieColor: {r: 0.4811321, g: 0.4811321, b: 0.4811321, a: 1}
   rematchButton: {fileID: 1532674107}
 --- !u!1 &591876218
 GameObject:
