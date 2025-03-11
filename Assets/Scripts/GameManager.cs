@@ -22,6 +22,7 @@ public class GameManager : NetworkBehaviour
         public PlayerType winPlayerType;
     }
     public event EventHandler OnCurrentPlayablePlayerTypeChanged;
+    public event EventHandler OnRematch;
 
     public enum PlayerType
     {
@@ -224,6 +225,30 @@ public class GameManager : NetworkBehaviour
             playerTypeArray[line.gridVector2IntList[0].x, line.gridVector2IntList[0].y],
             playerTypeArray[line.gridVector2IntList[1].x, line.gridVector2IntList[1].y],
             playerTypeArray[line.gridVector2IntList[2].x, line.gridVector2IntList[2].y]);
+    }
+
+    [Rpc(SendTo.Server)]
+    public void RematchRpc()
+    {
+        // Set playerTypeArray to None
+        for (int x = 0; x < playerTypeArray.GetLength(0); x++)
+        {
+            for (int y = 0; y < playerTypeArray.GetLength(1); y++)
+            {
+                playerTypeArray[x, y] = PlayerType.None;
+            }
+        }
+
+        // Set first play to Cross
+        currentPlayablePlayerType.Value = PlayerType.Cross;
+
+        TriggerOnRematchRpc();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void TriggerOnRematchRpc()
+    {
+        OnRematch?.Invoke(this, EventArgs.Empty);
     }
 
     public PlayerType GetLocalPlayerType()
