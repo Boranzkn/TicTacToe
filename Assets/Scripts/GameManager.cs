@@ -7,7 +7,7 @@ public class GameManager : NetworkBehaviour
     public static GameManager Instance { get; private set; }
 
     public event EventHandler<OnClickedOnGridPositionEventArgs> OnClickedOnGridPosition;
-    public class OnClickedOnGridPositionEventArgs: EventArgs
+    public class OnClickedOnGridPositionEventArgs : EventArgs
     {
         public int x;
         public int y;
@@ -25,10 +25,13 @@ public class GameManager : NetworkBehaviour
 
     private PlayerType localPlayerType;
     private NetworkVariable<PlayerType> currentPlayablePlayerType = new NetworkVariable<PlayerType>();
+    private PlayerType[,] playerTypeArray;
 
     private void Awake()
     {
         Instance = this;
+
+        playerTypeArray = new PlayerType[3, 3];
     }
 
     public override void OnNetworkSpawn()
@@ -72,10 +75,21 @@ public class GameManager : NetworkBehaviour
     [Rpc(SendTo.Server)]
     public void ClickedOnGridPositionRpc(int x, int y, PlayerType playerType)
     {
+        // Checks if it is the player's turn.
         if (playerType != currentPlayablePlayerType.Value)
         {
             return;
         }
+
+        // Checks if this location is occupied.
+        if (playerTypeArray[x, y] != PlayerType.None)
+        {
+            // Already occupied!
+            return;
+        }
+
+        // Assign that location to the playerType (Cross or Circle).
+        playerTypeArray[x, y] = playerType;
 
         OnClickedOnGridPosition?.Invoke(this, new OnClickedOnGridPositionEventArgs { x = x, y = y, playerType = playerType });
 
